@@ -16,7 +16,7 @@ type resolveResponse struct {
 	XrplAccount                   string `json:"xrplAccount"`
 	DestinationTag                string `json:"destinationTag"`
 	Label                         string `json:"label"`
-	IsPreferredXRPLAccountAddress string `json:"isPreferredXRPLAccountAddress"`
+	IsPreferredXRPLAccountAddress bool   `json:"isPreferredXRPLAccountAddress"`
 	Slug                          string `json:"slug"`
 	PublicPage                    string `json:"publicPage"`
 }
