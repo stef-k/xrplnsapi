@@ -15,4 +15,6 @@ func InitRoutes(e *echo.Echo) {
 	g.GET("/resolve/social/:network/:username", controllers.Resolve)
 	g.GET("/resolve/xrplaccount/:xrplaccount/:tag", controllers.ResolveXRPLAccount)
 	g.GET("/resolve/user/:slug", controllers.ResolveUser)
+	g.GET("/resolve/qrcode/:network/:username", controllers.ResolveQRCode)
+	g.GET("/resolve/qrcode/html/:network/:username", controllers.ResolveQRCodeHTML)
 }
