@@ -21,15 +21,21 @@ func (s *SocialAccount) TableName() string {
 // GetXrplAccount return the preferred XRPL Account by searching a social network for a username
 func GetXrplAccount(network, username string) (socialAccount SocialAccount, exists bool) {
 	var social SocialAccount
+	maybeSha := false
 
 	qs := DB.QueryTable("social_accounts")
 	exists = qs.Filter("social_network", network).Filter("username", username).Filter("public", true).Filter("verified", true).Exist()
-	if !exists {
-		exists = qs.Filter("contact_mail", network).Filter("username", username).Filter("public", true).Filter("verified", true).Exist()
+	if !exists && network == "email" {
+		exists = qs.Filter("contact_mail", username).Filter("public", true).Filter("verified", true).Exist()
+		maybeSha = true
 	}
 	if exists {
-		// qs.Filter("social_network", network).Filter("username", username).One(&social)
-		qs.One(&social)
+		if !maybeSha {
+			qs.Filter("social_network", network).Filter("username", username).Filter("public", true).Filter("verified", true).One(&social)
+		} else {
+			// check if someone searches using sha1 version of mail
+			qs.Filter("contact_mail", username).Filter("public", true).Filter("verified", true).One(&social)
+		}
 		DB.LoadRelated(&social, "PreferredXrplAccount")
 		DB.LoadRelated(&social, "User")
 		if !social.User.Locked {
