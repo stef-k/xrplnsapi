@@ -1,9 +1,12 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/labstack/echo"
+	"github.com/stef-k/xrplnsapi/models"
 )
 
 // ResponseWrap wrapper struct to provide the JSON data field
@@ -46,35 +49,57 @@ var emails []string
 // ResolveUser resolves a User account based on a slug
 func ResolveUser(c echo.Context) error {
 	slug := c.Param("slug")
+	userModel, exists := models.GetUserBySlug(slug)
 
-	emails = append(emails, "one@example.com")
-	emails = append(emails, "two@example.com")
+	if !exists {
+		var empty interface{}
+		return c.JSON(http.StatusNotFound, empty)
+	}
+
+	emails = nil
+	xrplAccounts = nil
+	socialAccounts = nil
+
+	// attach xrpl account in response
+	if len(userModel.XrplAccounts) > 0 {
+		for _, xrpl := range userModel.XrplAccounts {
+			xrplAcc := new(xrplAccount)
+			xrplAcc.XrplAccount = xrpl.XrplAccount
+			xrplAcc.DestinationTag = xrpl.Tag
+			xrplAcc.Label = xrpl.Label
+			xrplAcc.IsPreferredXRPLAccountAddress = xrpl.IsPreferredAddressOfUser
+			xrplAccounts = append(xrplAccounts, *xrplAcc)
+		}
+	}
+
+	// attach social accounts in response
+	if len(userModel.SocialAccounts) > 0 {
+		for _, acc := range userModel.SocialAccounts {
+			if acc.Public && acc.Verified {
+				social := new(socialAccount)
+				social.SocialNetwork = acc.SocialNetwork
+				social.PreferredXrplAccount = acc.PreferredXrplAccount.XrplAccount
+				social.DestinationTag = acc.PreferredXrplAccount.Tag
+				social.Label = acc.PreferredXrplAccount.Label
+				socialAccounts = append(socialAccounts, *social)
+				// if social account type of email attach the sha1 version to the contact array
+				if acc.SocialNetwork == "email" {
+					emails = append(emails, acc.ContactMail)
+				}
+			}
+		}
+	}
+
 	cont := new(contact)
 	cont.Mail = emails
 
-	xrplAcc := new(xrplAccount)
-	xrplAcc.Label = "XRPL Account 1"
-
-	xrplAccounts = append(xrplAccounts, *xrplAcc)
-
-	xrplAcc = new(xrplAccount)
-	xrplAcc.Label = "XRPL Account 2"
-
-	xrplAccounts = append(xrplAccounts, *xrplAcc)
-
-	socialAcc := new(socialAccount)
-	socialAcc.Label = "Social Account 1"
-
-	socialAccounts = append(socialAccounts, *socialAcc)
-
-	socialAcc = new(socialAccount)
-	socialAcc.Label = "Social Account 2"
-
-	socialAccounts = append(socialAccounts, *socialAcc)
-
 	user := new(resolveUser)
 
-	user.Name = "check param slug: " + slug
+	user.Name = userModel.Name
+	if userModel.PublicProfile {
+		user.PublicPage = fmt.Sprintf("%s%s", os.Getenv("PUBLIC_USERS_URL"), userModel.Slug)
+	}
+	user.ImageURL = userModel.ImageURL
 	user.SocialAccounts = socialAccounts
 	user.XRPLAccounts = xrplAccounts
 	user.Contact = *cont

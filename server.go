@@ -16,4 +16,5 @@ func main() {
 	})
 	routes.InitRoutes(e)
 	e.Logger.Fatal(e.Start("127.0.0.1:2222"))
+
 }

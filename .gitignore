@@ -1,5 +1,7 @@
 # app binary
 xrplnsapi
+# IMPORTANT!!! app config
+*.env
 # Binaries for programs and plugins
 *.exe
 *.exe~
