@@ -3,18 +3,13 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/stef-k/xrplnsapi/models"
+
 	"github.com/labstack/echo"
 )
 
 type resolveXRPLAccountResponseWrap struct {
-	Data []resolveXRPLAccountResponse `json:"data"`
-}
-
-type resolveXRPLAccountResponse struct {
-	Name                          string `json:"name"`
-	Slug                          string `json:"slug"`
-	PublicPage                    string `json:"publicPage"`
-	IsPreferredXRPLAccountAddress string `json:"isPreferredXRPLAccountAddress"`
+	Data []models.ResolveXRPLAccountResponse `json:"data"`
 }
 
 // ResolveXRPLAccount resolve an XRPL Account to it's Associated Users
@@ -22,21 +17,14 @@ func ResolveXRPLAccount(c echo.Context) error {
 	xrplaccount := c.Param("xrplaccount")
 	tag := c.Param("tag")
 
-	var results = []resolveXRPLAccountResponse{}
+	response := new(resolveXRPLAccountResponseWrap)
 
-	r := new(resolveXRPLAccountResponse)
-	r.Name = "param check: " + xrplaccount + " " + tag
+	response.Data = models.GetAccountUsers(xrplaccount, tag)
 
-	results = append(results, *r)
+	if len(response.Data) > 0 {
+		return c.JSON(http.StatusOK, response)
+	}
 
-	r = new(resolveXRPLAccountResponse)
-	r.Name = "second result"
-
-	results = append(results, *r)
-
-	w := new(resolveXRPLAccountResponseWrap)
-
-	w.Data = results
-
-	return c.JSON(http.StatusOK, w)
+	var empty interface{}
+	return c.JSON(http.StatusNotFound, empty)
 }

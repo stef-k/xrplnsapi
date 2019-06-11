@@ -26,9 +26,6 @@ func GetUserBySlug(slug string) (user User, exists bool) {
 	if exists {
 		qs.Filter("slug", slug).Filter("account_locked", false).Filter("public_profile", true).One(&u)
 		DB.LoadRelated(&u, "XrplAccounts")
-		// for _, xrpl := range u.XrplAccounts {
-		// 	DB.LoadRelated(xrpl, "")
-		// }
 		DB.LoadRelated(&u, "SocialAccounts")
 		for _, social := range u.SocialAccounts {
 			DB.LoadRelated(social, "PreferredXrplAccount")
