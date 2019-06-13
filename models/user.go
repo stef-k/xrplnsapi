@@ -11,6 +11,7 @@ type User struct {
 	// Reverse relationships
 	SocialAccounts []*SocialAccount `orm:"reverse(many)"`
 	XrplAccounts   []*XrplAccount   `orm:"reverse(many)"`
+	APIKey         []*APIKey        `orm:"reverse(many)"`
 }
 
 // TableName custom table name

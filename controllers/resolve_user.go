@@ -48,6 +48,10 @@ var emails []string
 
 // ResolveUser resolves a User account based on a slug
 func ResolveUser(c echo.Context) error {
+	if !models.CheckAPIKey(c.Request().Header["Xrplns-Key"]) {
+		var empty interface{}
+		return c.JSON(http.StatusUnauthorized, empty)
+	}
 	slug := c.Param("slug")
 	userModel, exists := models.GetUserBySlug(slug)
 

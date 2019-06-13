@@ -22,6 +22,10 @@ type resolveQrcodeHTMLResponse struct {
 // ResolveQRCodeHTML a username of a network to an XRPL Account
 func ResolveQRCodeHTML(c echo.Context) error {
 	// html := `<img src='data:image/png;base64,` + b64 + `' class='xrplnsQRCodeImgTag' />`
+	if !models.CheckAPIKey(c.Request().Header["Xrplns-Key"]) {
+		var empty interface{}
+		return c.JSON(http.StatusUnauthorized, empty)
+	}
 	network := c.Param("network")
 	username := c.Param("username")
 

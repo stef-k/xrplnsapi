@@ -20,7 +20,7 @@ func init() {
 		log.Fatal("Error loading .env file")
 	}
 
-	orm.RegisterModel(new(User), new(SocialAccount), new(XrplAccount))
+	orm.RegisterModel(new(User), new(SocialAccount), new(XrplAccount), new(APIKey))
 
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASSWORD")

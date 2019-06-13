@@ -22,6 +22,10 @@ type resolveQrcodeResponse struct {
 
 // ResolveQRCode a username of a network to an XRPL Account
 func ResolveQRCode(c echo.Context) error {
+	if !models.CheckAPIKey(c.Request().Header["Xrplns-Key"]) {
+		var empty interface{}
+		return c.JSON(http.StatusUnauthorized, empty)
+	}
 	network := c.Param("network")
 	username := c.Param("username")
 

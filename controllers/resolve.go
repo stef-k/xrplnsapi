@@ -26,6 +26,10 @@ type resolveResponse struct {
 
 // Resolve a username of a network to an XRPL Account
 func Resolve(c echo.Context) error {
+	if !models.CheckAPIKey(c.Request().Header["Xrplns-Key"]) {
+		var empty interface{}
+		return c.JSON(http.StatusUnauthorized, empty)
+	}
 	network := c.Param("network")
 	username := c.Param("username")
 

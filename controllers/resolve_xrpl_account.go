@@ -14,6 +14,10 @@ type resolveXRPLAccountResponseWrap struct {
 
 // ResolveXRPLAccount resolve an XRPL Account to it's Associated Users
 func ResolveXRPLAccount(c echo.Context) error {
+	if !models.CheckAPIKey(c.Request().Header["Xrplns-Key"]) {
+		var empty interface{}
+		return c.JSON(http.StatusUnauthorized, empty)
+	}
 	xrplaccount := c.Param("xrplaccount")
 	tag := c.Param("tag")
 
